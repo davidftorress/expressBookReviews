@@ -20,7 +20,7 @@ public_users.post("/register", (req,res) => {
         }
     }
     // Return error if username or password is missing
-    return res.status(404).json({message: "Unable to register user."});
+    return res.status(404).json({message: "User Name or password missing. Unable to register user."});
   
   //Write your code here
   //return res.status(300).json({message: "Yet to be implemented"});
@@ -75,7 +75,7 @@ public_users.get('/title/:title',function (req, res) {
 public_users.get('/review/:isbn',function (req, res) {
     const isbn = req.params.isbn;
     if (books[isbn].reviews.length>0){
-        res.send(JSON.stringify(books[isbn].reviews,null,4));
+        res.send(books[isbn].reviews);
     }else{
         res.status(404).send('No reviews available for this book');
     }
