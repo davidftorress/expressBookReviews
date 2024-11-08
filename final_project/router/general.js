@@ -1,6 +1,6 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-let books = require("./booksdb.js");
+const axios = require('axios');
 let isValid = require("./auth_users.js").isValid;
 let authenticatedUser = require("./auth_users.js").authenticatedUser;
 let users = require("./auth_users.js").users;
@@ -56,11 +56,17 @@ public_users.post("/login", (req,res) => {
 });
 
 // Get the book list available in the shop
-public_users.get('/',function (req, res) {
-  // Send JSON response with formatted friends data
-    res.send(JSON.stringify(books,null,4));
+public_users.get('/',async (req, res)=> {
+  // Send JSON response with formatted friends data 
     //Write your code here
-  //return res.status(300).json({message: "Yet to be implemented"});
+    try {
+        const response = await axios.get('https://davidftorres-3000.theianext-0-labs-prod-misc-tools-us-east-0.proxy.cognitiveclass.ai/booksdb');
+        const books =response.data;
+        res.send(JSON.stringify(books,null,4));
+        
+    } catch (error) {
+        res.status(500).send('Error al recuperar los detalles del libro');
+    }
 });
 
 public_users.get('/user',function (req, res) {
@@ -71,40 +77,63 @@ public_users.get('/user',function (req, res) {
 });
 
 // Get book details based on ISBN
-public_users.get('/isbn/:isbn',function (req, res) {
+public_users.get('/isbn/:isbn', async (req, res) => {
     // Retrieve the isbn parameter from the request URL and send the corresponding books details
-    const isbn = req.params.isbn;
-    res.send(JSON.stringify(books[isbn],null,4));
-    //Write your code here
-    //return res.status(300).json({message: "Yet to be implemented"});
+    try {
+        const isbn = req.params.isbn;
+        const response = await axios.get('https://davidftorres-3000.theianext-0-labs-prod-misc-tools-us-east-0.proxy.cognitiveclass.ai/booksdb');
+        const books = response.data;
+        const bookDetails = books[isbn];
+
+        if (bookDetails) {
+            res.send(JSON.stringify(bookDetails, null, 4));
+        } else {
+            res.status(404).send('Libro no encontrado');
+        }
+    } catch (error) {
+        res.status(500).send('Error al recuperar los detalles del libro');
+    }  
  });
   
 // Get book details based on author
-public_users.get('/author/:author',function (req, res) {
-    const author = req.params.author;
-    const booksByAuthor = Object.values(books).filter(book => book.author.toLowerCase() === author.toLowerCase());
+public_users.get('/author/:author',async (req, res) =>{
+        
+    try {
+        const author = req.params.author;
+        const response = await axios.get('https://davidftorres-3000.theianext-0-labs-prod-misc-tools-us-east-0.proxy.cognitiveclass.ai/booksdb');
+        const books = response.data;
+        const booksByAuthor = Object.values(books).filter(book => book.author.toLowerCase() === author.toLowerCase());
 
-    if (booksByAuthor.length > 0) {
-        res.send(JSON.stringify(booksByAuthor,null,4));
-    } else {
-        res.status(404).send('No books found by this author');
-    }
-//Write your code here
-    //return res.status(300).json({message: "Yet to be implemented"});
+        if (booksByAuthor) {
+            res.send(JSON.stringify(booksByAuthor, null, 4));
+        } else {
+            res.status(404).send('Libro no encontrado');
+        }
+    } catch (error) {
+        res.status(500).send('Error al recuperar los detalles del libro');
+    }  
+  
+
 });
 
 // Get all books based on title
-public_users.get('/title/:title',function (req, res) {
-    const title = req.params.title;
-    const booksByTitle = Object.values(books).filter(book => book.title.toLowerCase() === title.toLowerCase());
-
-    if (booksByTitle.length > 0) {
-        res.send(JSON.stringify(booksByTitle,null,4));
-    } else {
-        res.status(404).send('No books found by this title');
-    }
-  //Write your code here
-  //return res.status(300).json({message: "Yet to be implemented"});
+public_users.get('/title/:title',async(req, res) =>{
+    
+   try {
+        const title = req.params.title;
+        const response = await axios.get('https://davidftorres-3000.theianext-0-labs-prod-misc-tools-us-east-0.proxy.cognitiveclass.ai/booksdb');
+        const books = response.data;
+        const booksByTitle = Object.values(books).filter(book => book.title.toLowerCase() === title.toLowerCase());
+        
+        if (booksByTitle) {
+            res.send(JSON.stringify(booksByTitle, null, 4));
+        } else {
+            res.status(404).send('Libro no encontrado');
+        }
+    } catch (error) {
+        res.status(500).send('Error al recuperar los detalles del libro');
+    }  
+ 
 });
 
 //  Get book review

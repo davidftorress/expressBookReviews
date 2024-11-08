@@ -1,5 +1,4 @@
 const express = require('express');
-let books = require("./booksdb.js");
 const regd_users = express.Router();
 
 let users = [];

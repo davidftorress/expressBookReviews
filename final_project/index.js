@@ -5,6 +5,7 @@ const customer_routes = require('./router/auth_users.js').authenticated;
 const genl_routes = require('./router/general.js').general;
 
 const app = express();
+const booksdbServer = express();
 
 app.use(express.json());
 
@@ -33,3 +34,20 @@ const PORT =5000;
 app.use("/customer", customer_routes);
 app.use("/", genl_routes);
 app.listen(PORT,()=>console.log("Server is running"));
+
+// Servidor adicional para booksdb.js
+const fs = require('fs');
+const path = require('path');
+
+booksdbServer.get('/booksdb', (req, res) => {
+    const filePath= path.join(__dirname,'router','booksdb.json')
+    fs.readFile(filePath, 'utf-8', (err, data) => {
+        if (err) {
+            res.status(500).send('Error al leer el archivo');
+        } else {
+            res.send(data);
+        }
+    });
+});
+const BOOKS_PORT = 3000;
+booksdbServer.listen(BOOKS_PORT, () => console.log(`Books server is running on port ${BOOKS_PORT}`));
